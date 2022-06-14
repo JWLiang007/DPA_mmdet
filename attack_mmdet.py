@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import torch
 import torch.nn.functional as F
@@ -49,6 +51,7 @@ texture_file  = '3dmodel/body.png'
 texture_mask_file = '3dmodel/body_mask.png'
 obj_file = '3dmodel/DJS2022.obj'
 device = 'cuda:0'
+out_dir = './res/'
 batch_size = 1
 lr = 1
 l2_weight = 0.0
@@ -72,6 +75,8 @@ light_mult_min=0.5
 light_mult_max=2.0
 light_add_min=-0.15
 light_add_max=0.15
+
+os.makedirs(out_dir,exist_ok=True)
 
 model = init_detector(config_file, checkpoint_file, device='cuda:0')
 model.test_cfg['rcnn'].score_thr = 1e-5
@@ -197,7 +202,7 @@ for i in range(30000):
               # '  loss_all:  ', loss.clone().detach().cpu().numpy(),
               '  diff: ', torch.sum(torch.abs(diff)))
         out = Image.fromarray((adv_texture.clone().detach().cpu().numpy().transpose(1,2,0)*255).astype(np.uint8))
-        out.save('{}/adv_{}.png'.format('res', i))
+        out.save(os.path.join(out_dir,'adv_{}.png'.format(i)))
     pass
 
 print('finish...')
